@@ -43,12 +43,11 @@ export const connect = () => {
         const networkId = await window.ethereum.request({
           method: 'net_version',
         })
-        const NetworkData = await SmartContract.networks[networkId]
-        console.log(accounts, networkId)
-        if (NetworkData) {
+        console.log(accounts, networkId, SmartContract.networks)
+        if (networkId == 4) {
           const SmartContractObj = new web3.eth.Contract(
             SmartContract.abi,
-            NetworkData.address,
+            '0x9698B21eBc5A7355f2bE0ef2F2781dE0E54f93f0',
           )
           dispatch(
             connectSuccess({
@@ -66,7 +65,7 @@ export const connect = () => {
           })
           // Add listeners end
         } else {
-          dispatch(connectFailed('Change network to Polygon.'))
+          dispatch(connectFailed('Change network to Rinkeby.'))
         }
       } catch (err) {
         dispatch(connectFailed('Something went wrong.'))

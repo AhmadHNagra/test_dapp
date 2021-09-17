@@ -6,6 +6,7 @@ import * as s from './styles/globalStyles'
 import styled from 'styled-components'
 import { create } from 'ipfs-http-client'
 import Web3 from 'web3'
+const { NFTUris } = require('./NFTUris.js')
 
 export const StyledButton = styled.button`
   padding: 8px;
@@ -16,6 +17,10 @@ function App() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [image, setImage] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState('')
+  const [metadatCreation, setMetadataCreation] = useState(false)
+  const [mintCount, setMintCount] = useState('1')
 
   const dispatch = useDispatch()
   const blockchain = useSelector((state) => state.blockchain)
@@ -30,9 +35,13 @@ function App() {
 
   const createMetadata = () => {
     try {
+      setLoading(true)
+      setStatus('Creating Metadata')
       toDataURL(image, useBuffer)
     } catch (err) {
       console.log('Something went wrong', err)
+      setLoading(false)
+      setStatus('Error')
     }
   }
   const useBuffer = async (imageUri) => {
@@ -41,27 +50,74 @@ function App() {
       name: name,
       description: description,
       image: ipfsBaseUrl + addedImage.path,
+      attributes: [
+        {
+          trait_type: 'Agility',
+          value: 1 + Math.random() * (250 - 1),
+        },
+        {
+          trait_type: 'Strength',
+          value: 1 + Math.random() * (250 - 1),
+        },
+        {
+          trait_type: 'Intelligence',
+          value: 1 + Math.random() * (250 - 1),
+        },
+      ],
     }
     const addedMetadata = await ipfsClient.add(JSON.stringify(metaDataObj))
     const tokenUri = ipfsBaseUrl + addedMetadata.path
     console.log(tokenUri)
-    mint(tokenUri)
   }
 
-  const mint = (uri) => {
-    console.log('chain object', blockchain)
-    blockchain.smartContract.methods
-      .CreateCollectible(blockchain.account, uri)
-      .send({
-        from: blockchain.account,
-        value: Web3.utils.toWei('0.07', 'ether'),
-      })
-      .once('error', (err) => {
-        console.log('Error in minting', err)
-      })
-      .then((receipt) => {
-        console.log('Minted successfully', receipt)
-      })
+  const Initiatemint = () => {
+    for (var i = 0; i < parseInt(mintCount); i++) {
+      mint()
+    }
+  }
+
+  const mint = () => {
+    try {
+      setLoading(true)
+      setStatus('Begun minting process')
+      blockchain.smartContract.methods
+        .GetAllExistingTokens()
+        .call()
+        .then((receipt) => {
+          let existingUri = receipt.map((a) => a.uri)
+          if (existingUri.length >= 30) {
+            setLoading(false)
+            setStatus('All possible Tokens minted')
+            return
+          }
+          var uri = NFTUris[Math.floor(Math.random() * 30)]
+          console.log('All minted tokens', existingUri, uri)
+          while (existingUri.includes(uri)) {
+            uri = NFTUris[Math.floor(Math.random() * 30)]
+            console.log('refreshing uri pick')
+          }
+          blockchain.smartContract.methods
+            .CreateCollectible(blockchain.account, uri)
+            .send({
+              from: blockchain.account,
+              value: Web3.utils.toWei('0.07', 'ether'),
+            })
+            .once('error', (err) => {
+              console.log('Error in minting', err)
+              setLoading(false)
+              setStatus('Transaction rejected')
+            })
+            .then((receipt) => {
+              console.log('Minted successfully', receipt)
+              setLoading(false)
+              setStatus('Success')
+            })
+            .catch((err) => console.log(err))
+        })
+    } catch (error) {
+      setLoading(false)
+      setStatus(error)
+    }
   }
 
   async function toDataURL(url, callback) {
@@ -82,14 +138,6 @@ function App() {
 
     xhr.send()
   }
-
-  /*const createImageBuffer = (image) => {
-    let dataUrl = image.toDataURL('image/png')
-    const buffer = Buffer(dataUrl.split(',')[1], 'base64')
-    return buffer
-  }*/
-
-  const initiateMint = () => {}
 
   return (
     <s.Screen>
@@ -115,58 +163,97 @@ function App() {
           <s.TextTitle style={{ textAlign: 'center' }}>
             Welcome to Altar
           </s.TextTitle>
+          {loading ? (
+            <>
+              <s.SpacerSmall />
+              <s.TextDescription style={{ textAlign: 'center' }}>
+                Loading....
+              </s.TextDescription>
+            </>
+          ) : null}
+          {status !== '' ? (
+            <>
+              <s.SpacerSmall />
+              <s.TextDescription style={{ textAlign: 'center' }}>
+                {status}
+              </s.TextDescription>
+            </>
+          ) : null}
           <s.SpacerLarge />
           <StyledButton
             onClick={(e) => {
               e.preventDefault()
-              initiateMint()
+              Initiatemint()
             }}
           >
             MINT
           </StyledButton>
-          <s.SpacerLarge />
-          <form
-            onSubmit={(event) => {
-              event.preventDefault()
-              createMetadata()
+          <select
+            value={mintCount}
+            onChange={(e) => {
+              setMintCount(e.target.value)
             }}
           >
-            <label>
-              Name:
-              <input
-                type="text"
-                value={name}
-                onChange={(event) => {
-                  setName(event.target.value)
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+          <s.SpacerLarge />
+          <StyledButton
+            onClick={(e) => {
+              e.preventDefault()
+              setMetadataCreation(!metadatCreation)
+            }}
+          >
+            Enable/Disable Metadata Creation
+          </StyledButton>
+          <s.SpacerLarge />
+          {metadatCreation !== false ? (
+            <>
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault()
+                  createMetadata()
                 }}
-                name="name"
-              />
-            </label>
-            <label>
-              Description:
-              <input
-                type="text"
-                value={description}
-                onChange={(event) => {
-                  setDescription(event.target.value)
-                }}
-                name="description"
-              />
-            </label>
-            <img src={image} />
-            <h1>Select Image</h1>
-            <input
-              type="file"
-              name="myImage"
-              onChange={(event) => {
-                if (event.target.files && event.target.files[0]) {
-                  let img = event.target.files[0]
-                  setImage(URL.createObjectURL(img))
-                }
-              }}
-            />
-            <input type="submit" value="Create Metadata" />
-          </form>
+              >
+                <label>
+                  Name:
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(event) => {
+                      setName(event.target.value)
+                    }}
+                    name="name"
+                  />
+                </label>
+                <label>
+                  Description:
+                  <input
+                    type="text"
+                    value={description}
+                    onChange={(event) => {
+                      setDescription(event.target.value)
+                    }}
+                    name="description"
+                  />
+                </label>
+                <img src={image} />
+                <h1>Select Image</h1>
+                <input
+                  type="file"
+                  name="myImage"
+                  onChange={(event) => {
+                    if (event.target.files && event.target.files[0]) {
+                      let img = event.target.files[0]
+                      setImage(URL.createObjectURL(img))
+                    }
+                  }}
+                />
+                <input type="submit" value="Create Metadata" />
+              </form>
+            </>
+          ) : null}
         </s.Container>
       )}
     </s.Screen>

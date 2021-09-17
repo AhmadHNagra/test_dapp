@@ -28,7 +28,7 @@ contract('SmartContract', (accounts) => {
     it('minted successfully', async () => {
       const uri = 'https://example.com'
       await smartContract.CreateCollectible(accounts[0], uri, {
-        value: web3.utils.toWei('1.00', 'ether'),
+        value: web3.utils.toWei('0.07', 'ether'),
       })
 
       const tokenUri = await smartContract.tokenURI(1)
