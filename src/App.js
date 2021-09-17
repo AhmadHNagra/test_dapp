@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { connect } from './redux/blockchain/blockchainActions'
 import { fetchData } from './redux/data/dataActions'
@@ -24,7 +24,6 @@ function App() {
 
   const dispatch = useDispatch()
   const blockchain = useSelector((state) => state.blockchain)
-  const data = useSelector((state) => state.data)
   const ipfsBaseUrl = 'https://ipfs.infura.io/ipfs/'
 
   useEffect(() => {
@@ -39,7 +38,6 @@ function App() {
       setStatus('Creating Metadata')
       toDataURL(image, useBuffer)
     } catch (err) {
-      console.log('Something went wrong', err)
       setLoading(false)
       setStatus('Error')
     }
@@ -91,10 +89,8 @@ function App() {
             return
           }
           var uri = NFTUris[Math.floor(Math.random() * 30)]
-          console.log('All minted tokens', existingUri, uri)
           while (existingUri.includes(uri)) {
             uri = NFTUris[Math.floor(Math.random() * 30)]
-            console.log('refreshing uri pick')
           }
           blockchain.smartContract.methods
             .CreateCollectible(blockchain.account, uri)
@@ -103,12 +99,10 @@ function App() {
               value: Web3.utils.toWei('0.07', 'ether'),
             })
             .once('error', (err) => {
-              console.log('Error in minting', err)
               setLoading(false)
               setStatus('Transaction rejected')
             })
             .then((receipt) => {
-              console.log('Minted successfully', receipt)
               setLoading(false)
               setStatus('Success')
             })
@@ -128,7 +122,6 @@ function App() {
       var fr = new FileReader()
 
       fr.onload = function () {
-        console.log('result', this.result)
         const buffer = Buffer(this.result.split(',')[1], 'base64')
         callback(buffer)
       }

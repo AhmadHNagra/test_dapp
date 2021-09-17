@@ -1,7 +1,5 @@
-// constants
 import Web3 from 'web3'
 import SmartContract from '../../contracts/SmartContract.json'
-// log
 import { fetchData } from '../data/dataActions'
 
 const connectRequest = () => {
@@ -45,9 +43,10 @@ export const connect = () => {
         })
         console.log(accounts, networkId, SmartContract.networks)
         if (networkId == 4) {
+          //rinkeby network id
           const SmartContractObj = new web3.eth.Contract(
             SmartContract.abi,
-            '0x9698B21eBc5A7355f2bE0ef2F2781dE0E54f93f0',
+            '0x9698B21eBc5A7355f2bE0ef2F2781dE0E54f93f0', //contract address
           )
           dispatch(
             connectSuccess({
@@ -56,14 +55,12 @@ export const connect = () => {
               web3: web3,
             }),
           )
-          // Add listeners start
           window.ethereum.on('accountsChanged', (accounts) => {
             dispatch(updateAccount(accounts[0]))
           })
           window.ethereum.on('chainChanged', () => {
             window.location.reload()
           })
-          // Add listeners end
         } else {
           dispatch(connectFailed('Change network to Rinkeby.'))
         }
