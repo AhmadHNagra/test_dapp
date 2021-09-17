@@ -3,11 +3,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract SmartContract is Ownable, ERC721URIStorage {
+contract SmartContract is Ownable,ERC721 {
 
     using Counters for Counters.Counter;
 
@@ -15,6 +14,7 @@ contract SmartContract is Ownable, ERC721URIStorage {
 
     uint256 private MAX_ITEMS;
     uint256 private PRICE;
+    mapping(uint256=>string) _tokenURIs;
     
     struct NFToken
     {
@@ -27,6 +27,14 @@ contract SmartContract is Ownable, ERC721URIStorage {
         PRICE = 0.06 ether;
     }
 
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal{
+        _tokenURIs[tokenId] = _tokenURI;
+    }
+
+    function tokenURI(uint256 tokenId) public view virtual override returns(string memory)
+    {
+        return _tokenURIs[tokenId];
+    }
     function CreateCollectible(address _to, string memory uri) public payable returns (uint256) {
         uint256 total = _tokenIdTracker.current();
         require(total < MAX_ITEMS, "No more NFTs left to mint");
@@ -34,7 +42,7 @@ contract SmartContract is Ownable, ERC721URIStorage {
 
         _tokenIdTracker.increment();
         uint id = _tokenIdTracker.current();
-        _safeMint(_to, id);
+        _mint(_to, id);
         _setTokenURI(id, uri);
         return id;
     }
