@@ -51,15 +51,15 @@ function App() {
       attributes: [
         {
           trait_type: 'Agility',
-          value: 1 + Math.random() * (250 - 1),
+          value: Math.floor(1 + Math.random() * (250 - 1)),
         },
         {
           trait_type: 'Strength',
-          value: 1 + Math.random() * (250 - 1),
+          value: Math.floor(1 + Math.random() * (250 - 1)),
         },
         {
           trait_type: 'Intelligence',
-          value: 1 + Math.random() * (250 - 1),
+          value: Math.floor(1 + Math.random() * (250 - 1)),
         },
       ],
     }
