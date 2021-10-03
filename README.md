@@ -1,4 +1,4 @@
-A test app built for an interview. For viewing and testing purposes only.
+A test app. For viewing and testing purposes only.
 
 You need to have node(https://nodejs.org/en/download/) and truffle(https://www.trufflesuite.com/docs/truffle/getting-started/installation) installed to run this app.
 
