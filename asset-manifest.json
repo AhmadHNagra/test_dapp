@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/test_dapp/static/css/main.5627552b.chunk.css",
+    "main.js": "/test_dapp/static/js/main.2df2bbc9.chunk.js",
+    "main.js.map": "/test_dapp/static/js/main.2df2bbc9.chunk.js.map",
+    "runtime-main.js": "/test_dapp/static/js/runtime-main.c93b03c4.js",
+    "runtime-main.js.map": "/test_dapp/static/js/runtime-main.c93b03c4.js.map",
+    "static/js/2.b310ef42.chunk.js": "/test_dapp/static/js/2.b310ef42.chunk.js",
+    "static/js/2.b310ef42.chunk.js.map": "/test_dapp/static/js/2.b310ef42.chunk.js.map",
+    "static/js/3.dc4c6d87.chunk.js": "/test_dapp/static/js/3.dc4c6d87.chunk.js",
+    "static/js/3.dc4c6d87.chunk.js.map": "/test_dapp/static/js/3.dc4c6d87.chunk.js.map",
+    "index.html": "/test_dapp/index.html",
+    "static/css/main.5627552b.chunk.css.map": "/test_dapp/static/css/main.5627552b.chunk.css.map",
+    "static/js/2.b310ef42.chunk.js.LICENSE.txt": "/test_dapp/static/js/2.b310ef42.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.c93b03c4.js",
+    "static/js/2.b310ef42.chunk.js",
+    "static/css/main.5627552b.chunk.css",
+    "static/js/main.2df2bbc9.chunk.js"
+  ]
+}
